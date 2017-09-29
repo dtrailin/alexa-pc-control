@@ -4,17 +4,15 @@ import os
 import dbus
 from flask import g
 import time
-
+import subprocess
 
 app = Flask(__name__)
-
 
 @app.after_request
 def per_request_callbacks(response):
     for func in getattr(g, 'call_after_request', ()):
         func()
     return response
-
 
 def after_this_request(func):
     if not hasattr(g, 'call_after_request'):
@@ -32,7 +30,7 @@ def shutdown():
     @after_this_request
     def turn_off():
         print("Shutting down")
-        time.sleep(2)  
+        time.sleep(2)
         sys_bus = dbus.SystemBus()
         ck_srv = sys_bus.get_object('org.freedesktop.ConsoleKit', '/org/freedesktop/ConsoleKit/Manager')
         ck_iface = dbus.Interface(ck_srv, 'org.freedesktop.ConsoleKit.Manager')
@@ -43,4 +41,23 @@ def shutdown():
 @app.route('/on')
 def on():
     print("You're already on dummy")
+    return "True"
+
+@app.route('/netflixon')
+def netflix_on():
+    @after_this_request
+    def do_netflix_on():
+        subprocess.call("google-chrome --fullscreen http://www.netflix.com && xdotool key F11", shell=True)
+        print("Opening Netflix")
+
+    return "True"
+
+
+@app.route('/netflixoff')
+def netflix_off():
+    @after_this_request
+    def do_netflix_off():
+        subprocess.call("wmctrl -c chrome", shell=True)
+        print("Closing Netflix")
+
     return "True"
