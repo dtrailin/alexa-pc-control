@@ -47,7 +47,9 @@ def on():
 def netflix_on():
     @after_this_request
     def do_netflix_on():
-        subprocess.call("google-chrome --fullscreen http://www.netflix.com && xdotool key F11", shell=True)
+        subprocess.Popen("google-chrome --fullscreen http://www.netflix.com", shell=True)
+        time.sleep(5)
+        subprocess.Popen("xdotool key F11", shell=True)
         print("Opening Netflix")
 
     return "True"
@@ -57,7 +59,7 @@ def netflix_on():
 def netflix_off():
     @after_this_request
     def do_netflix_off():
-        subprocess.call("wmctrl -c chrome", shell=True)
+        subprocess.Popen("wmctrl -c chrome", shell=True)
         print("Closing Netflix")
 
     return "True"
